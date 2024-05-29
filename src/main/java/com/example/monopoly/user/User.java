@@ -1,14 +1,20 @@
 package com.example.monopoly.user;
 
+import com.example.monopoly.transaction.Transaction;
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 
+import java.math.BigDecimal;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Base64;
+import java.util.List;
 
 @Entity
-@Table
+@Table(name = "\"users\"")
 public class User {
     @Id
     @SequenceGenerator(
@@ -29,28 +35,34 @@ public class User {
     private Integer Age;
     private LocalDate DateOfBirth;
     private String Password;
+    private BigDecimal Balance;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Transaction> transactions;
 
     public User() {
 
     }
 
-    public User(Long id, String firstName, String lastName, String phoneNumber, String email, LocalDate dateOfBirth, String password) {
+    public User(Long id, String firstName, String lastName, String phoneNumber, String email, LocalDate dateOfBirth, String password, BigDecimal balance) {
         this.id = id;
         FirstName = firstName;
         LastName = lastName;
         PhoneNumber = phoneNumber;
         Email = email;
         DateOfBirth = dateOfBirth;
-        Password = password;
+        this.setPassword(password);
+        Balance = balance;
     }
 
-    public User(String firstName, String lastName, String phoneNumber, String email, LocalDate dateOfBirth, String password) {
+    public User(String firstName, String lastName, String phoneNumber, String email, LocalDate dateOfBirth, String password, BigDecimal balance) {
         FirstName = firstName;
         LastName = lastName;
         PhoneNumber = phoneNumber;
         Email = email;
         DateOfBirth = dateOfBirth;
-        Password = password;
+        this.setPassword(password);
+        Balance = balance;
+
     }
 
     public Long getId() {
@@ -106,9 +118,13 @@ public class User {
     }
 
     public void setPassword(String password) {
-        org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder =
-                new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
-        Password = encoder.encode(password);
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-512");
+            byte[] hash = md.digest(password.getBytes());
+            Password = Base64.getEncoder().encodeToString(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error hashing password", e);
+        }
     }
 
     public LocalDate getDateOfBirth() {
@@ -117,5 +133,13 @@ public class User {
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
         DateOfBirth = dateOfBirth;
+    }
+
+    public BigDecimal getBalance() {
+        return Balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        Balance = balance;
     }
 }
