@@ -41,7 +41,7 @@ public class TransactionService {
         }
 
         User user = optionalUser.get();
-        user.setBalance(user.getBalance().add(transaction.getAmount()));
+        user.setBalance(transaction.getTransactionType() == TransactionType.INCOME ? user.getBalance().add(transaction.getAmount()) : user.getBalance().subtract(transaction.getAmount()));
         userRepository.save(user);
 
         transactionRepository.save(transaction);

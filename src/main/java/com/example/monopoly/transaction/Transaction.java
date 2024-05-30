@@ -1,10 +1,12 @@
 package com.example.monopoly.transaction;
 
+import com.example.monopoly.group.Group;
 import com.example.monopoly.user.User;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "\"transactions\"")
@@ -29,6 +31,8 @@ public class Transaction {
     @ManyToOne
     @JoinColumn(name = "UserId")
     private User user;
+    @ManyToMany
+    private List<Group> groups;
 
     public Transaction() {
 
@@ -111,5 +115,21 @@ public class Transaction {
 
     public void setUpdatedAt(LocalDate updatedAt) {
         UpdatedAt = updatedAt;
+    }
+
+    public List<Group> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(List<Group> groups) {
+        this.groups = groups;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
